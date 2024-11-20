@@ -1,7 +1,7 @@
 <?php
+require 'vendor/autoload.php';
+use GuzzleHttp\Client;
 
-
-require 'Namazvaqtlari/Aladham.php';
 
 $bot = new Aladham();
 

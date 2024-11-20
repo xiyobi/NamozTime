@@ -1,31 +1,33 @@
 <?php
-
+require 'vendor/autoload.php';
+use GuzzleHttp\Client;
 class Aladham
 {
     const API_URL = 'https://aladhan.com/prayer-times-api';
     private $token = "7734870499:AAHuLYnI2Ir_3j6cCyXdYSSGMuPjuIXUTBU";
+    public $client;
 
+    public function __construct(){
+        $this->client = new Client([
+            'base_uri' => self::API_URL,
+            'timeout'  => 2.0,
 
+        ]);
+    }
     public function makeRequest($method, $data = [])
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, self::API_URL . $this->token . '/' . $method);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-        $response = curl_exec($ch);
-        curl_close($ch);
-        return json_decode($response, true);
+        $response = $this->client->post($method, [
+            'json' => $data,
+        ]);
+        return json_decode($response->getBody()->getContents());
     }
 
     public function getPrayerTimes($latitude = 41.3775, $longitude = 64.5853, $method = 7)
     {
-        $url = self::API_URL . "?latitude=" . $latitude . "&longitude=" . $longitude . "&method=" . $method;
-        $response = $this->makeRequest($url);
-        $data = json_decode($response, true);
-        if ($data["status"] == 'success') {
-            return $data["data"]['timings'];
-        }
-        return null;
+        $apiUrl = "https://api.aladhan.com/v1/timingsByCity?city=Tashkent&country=Uzbekistan&method=2";
+        $response = $this->client->get($apiUrl);
+        $data =  json_decode($response->getBody(),true);
+        return $data['data']['timings'] ?? null;
     }
 }
 
